@@ -1,0 +1,169 @@
+
+---1. FLO tablosunu getirecek sorguyu yazınız---
+
+SELECT * FROM flo
+
+---2. Kaç farklı müşterinin alışveriş yaptığını gösterecek sorguyu yazınız---
+
+SELECT COUNT(master_id) FROM flo
+
+---3. Toplam Ciro ile toplam alışveriş adedini getirecek sorguyu yazınız?---
+
+SELECT SUM(order_num_total_ever_offline) + SUM(order_num_total_ever_online) AS TOPLAMALISVERIS
+, SUM(customer_value_total_ever_offline)+SUM(customer_value_total_ever_online) AS TOPLAMCIRO
+FROM flo
+
+---4. Alışveriş başına ortalama ciroyu getirecek sorguyu yazınız.--
+
+SELECT TOPLAMCIRO/TOPLAMALISVERIS AS ORTCIRO FROM
+(SELECT SUM(order_num_total_ever_offline) + SUM(order_num_total_ever_online) AS TOPLAMALISVERIS
+, SUM(customer_value_total_ever_offline)+SUM(customer_value_total_ever_online) AS TOPLAMCIRO
+FROM flo) F
+
+---5. En  son  alışveriş  yapılan  kanal  (last_order_channel)  üzerinden  yapılan  alışverişlerin  toplam  ciro  ve  alışveriş  sayılarını getirecek sorguyu yazınız.---
+
+SELECT last_order_channel, SUM(order_num_total_ever_offline) + SUM(order_num_total_ever_online) AS TOPLAMALISVERIS
+, SUM(customer_value_total_ever_offline)+SUM(customer_value_total_ever_online) AS TOPLAMCIRO
+FROM flo 
+GROUP BY last_order_channel
+
+---6. Yıl kırılımında alışveriş adedini getirecek sorguyu yazınız (Yıl olarak müşterinin “ilk alışveriş tarihi” (first_order_date) yılını baz alınız). Bu soruyu excel’de çözünüz ve görselleştiriniz.
+
+SELECT YEAR(first_order_date) YIL, SUM(order_num_total_ever_offline) + SUM(order_num_total_ever_online) AS TOPLAMALISVERIS
+FROM flo  GROUP BY YEAR(first_order_date)
+
+---7. En son alışveriş yapılan kanal bazında alışveriş başına ortalama ciroyu hesaplayacak sorguyu yazınız.---
+
+SELECT last_order_channel, (SUM(customer_value_total_ever_offline)+SUM(customer_value_total_ever_online))/(SUM(order_num_total_ever_offline) + SUM(order_num_total_ever_online)) ORTCIRO
+FROM flo 
+GROUP BY last_order_channel
+
+---8. Online  ve  offline  alışveriş  yapan  müşterilerin  toplam  cirolarını  ayrı  ayrı  getiren  sorguyu  yazınız. Excel’de  online  veoffline platformda alışveriş yapan müşterilerin toplam harcamalarını bularak görselleştiriniz.📍İpucu: SQL Başlıkları ”customer_value_total_ever_offline” ,  “customer_value_total_ever_online” 
+
+SELECT MASTER_ID, SUM(customer_value_total_ever_offline) OFFLINE,SUM(customer_value_total_ever_online) ONLINE
+FROM FLO
+GROUP BY MASTER_ID
+
+---9. FLO tablosundaki master_id ve order_channel kolonlarını getiren sorguyu yazınız.
+
+SELECT master_id,order_channel
+FROM FLO
+
+---10. FLO tablosundan 'Offline' olmayan sipariş kanalına sahip kayıtları getiren sorguyu yazınız.
+
+SELECT * FROM flo
+WHERE last_order_channel<>'Offline'
+
+---11. FLO tablosundan sipariş kanalı 'Offline' olmayan ve online alışverişlerinde ödediği toplam ücret 1000'den fazla olan kayıtları getiren  sorguyu yazınız. Ayrıca excel’de formül ile çözünüz.
+
+SELECT * FROM flo
+WHERE last_order_channel<>'Offline' 
+AND customer_value_total_ever_online>1000
+
+---12. FLO  tablosundan  alışveriş  yapılan  platforma  ait  sipariş  kanalı  ‘Mobile‘  olan,  online  ve  offline  alışveriş  yapan müşterilerin toplam cirolarını getiren sorguyu yazınız.
+
+SELECT master_id, SUM(customer_value_total_ever_offline)+SUM(customer_value_total_ever_online) CIRO
+FROM flo
+WHERE order_channeL='Mobile'
+GROUP BY master_id
+
+---13. «interested_in_categories_12» kategorisinde içerisinde “SPOR” geçen verileri getirecek sorguyu yazınız.
+
+SELECT * FROM flo
+WHERE interested_in_categories_12 like '%SPOR%'
+
+---14. Müşterinin offline alışverişlerinde ödediği ücretin 0 ile 10.000 arasında olduğu kayıtları getiren sorguyu yazınız.
+
+SELECT * FROM flo 
+where customer_value_total_ever_offline BETWEEN 0 and 100000
+
+---15. «interested_in_categories_12» ve  order_channel  bazında  online  sipariş  adetlerini  toplayan  sorguyu  yazınız  ve excel’de görselleştiriniz.
+
+SELECT interested_in_categories_12, order_channel , SUM(order_num_total_ever_online)
+ FROM flo 
+ GROUP BY interested_in_categories_12, order_channel 
+
+--- 16. En  son  alışveriş  yapılan  kanal  (last_order_channel)  bazında,  ve  kullanıcıların  ilgilendiği  her  bir  kategoriden (interested_in_categories_12)  bazında  kaç  adet  alışveriş  yapıldığını  getiren  sorguyu  yazınız  ve  adet  sayısına  göre büyükten küçüğe doğru sıralayanız.
+
+SELECT last_order_channel,interested_in_categories_12, SUM(order_num_total_ever_offline) + SUM(order_num_total_ever_online) ALISVERISSAYISI
+ FROM flo
+ GROUP BY last_order_channel,interested_in_categories_12
+ORDER BY ALISVERISSAYISI ASC
+
+---17. En  çok  alışveriş  yapan  50  kişinin  ID’  sini  getiren  sorguyu  yazınız. Excel’de  de  en  çok  alışveriş  yapan  50  müşterininlast_order_channel durumlarını inceleyerek,
+--- kanal bazlı olarak görselleştiriniz.
+
+SELECT TOP 50 master_id, SUM(order_num_total_ever_offline) + SUM(order_num_total_ever_online) ALISVERISSAYISI
+ FROM flo
+ GROUP BY master_id
+ ORDER BY ALISVERISSAYISI DESC
+
+---18. First Order Date’e göre yıl bazında müşteri adedini getiren sorguyu yazınız.
+
+SELECT YEAR(First_Order_Date), COUNT(master_id) MUSTERIADET
+FROM flo 
+GROUP BY YEAR(First_Order_Date)
+
+--19. Last order date’i 2020 olan müşterilerin adedini getiren sorguyu yazınız.
+SELECT COUNT(master_id) MUSTERIADET
+FROM flo 
+WHERE YEAR(last_order_date)=2020
+
+---20. Sadece  [AKTIFSPOR]  kategorisinden  alışveriş  yapmış  kişilerin  Order  Channel’larını  sağ  tarafa  kolon  olarak  ekleyen sorguyu yazınız.
+
+SELECT master_id,interested_in_categories_12, order_channeL FROM FLO 
+WHERE interested_in_categories_12='[AKTIFSPOR]'
+
+---21. İçerisinde [AKTIFSPOR] kategorisinden alışveriş yapmış kişilerin Order Channel’larını sağ tarafa kolon olarak ekleyen sorguyu yazınız.
+
+SELECT master_id,interested_in_categories_12, order_channeL FROM FLO 
+WHERE interested_in_categories_12 LIKE '%AKTIFSPOR%'
+
+---22. 2018  ile  2019  yılları  arasındaki  her  ay  için,  o  ay  ilk  defa  alışveriş  yapan  (yeni)  müşteri  sayısını,  yıl  ve  ay  bilgileriyle birlikte listeleyen sorguyu yazınız.
+
+SELECT YIL, AY, MUSTERIADET
+FROM
+(SELECT YEAR(First_Order_Date) YIL, MONTH(First_Order_Date) AY, COUNT(master_id) MUSTERIADET
+FROM flo 
+GROUP BY YEAR(First_Order_Date), MONTH(First_Order_Date)) A
+WHERE YIL IN (2018,2019)
+
+---23. Order_channel’ı    'mobile'  veya  'desktop'  olan  ve  interested_in_categories_12’de  'AKTIFSPOR'  olmayan  kayıtları getiren sorguyu yazınız.
+
+SELECT * FROM flo
+WHERE order_channel in ('Mobile','Desktop')
+AND interested_in_categories_12 NOT LIKE '%AKTIFSPOR%'
+
+---24. Order_channelda 'Mobile' veya 'Desktop' olan siparişlerin kayıtlarını getiren sorguyu yazınız.
+
+SELECT * FROM flo
+WHERE order_channel in ('Mobile','Desktop')
+
+---25. Online kanalda alışveriş adedinin en yüksek olduğu ayı ve bu aydaki toplam harcama(ciro) bilgilerini getiren sorguyu yazınız.
+
+SELECT TOP 1 MONTH(last_order_date_online), SUM(order_num_total_ever_online), SUM(customer_value_total_ever_online)
+ FROM flo
+GROUP BY MONTH(last_order_date_online)
+ORDER BY SUM(order_num_total_ever_online) DESC
+
+---Aşağıdaki soruları Northwind database içerisinde yapınız.
+---26. Müşteriler ve onların verdiği siparişlerin detaylarını listeyecek sorguyu inner join ile yazınız.
+
+SELECT C.*, OD.*
+FROM Customers C
+INNER JOIN Orders O ON O.CustomerID=C.CustomerID
+INNER JOIN OrderDetails OD ON OD.OrderID=O.OrderID
+
+---27. Müşteriler ve onların verdiği siparişlerin detaylarını listeyecek sorguyu left join ile yazınız.
+
+SELECT C.*, OD.*
+FROM Customers C
+LEFT JOIN Orders O ON O.CustomerID=C.CustomerID
+LEFT JOIN OrderDetails OD ON OD.OrderID=O.OrderID
+
+---28. Müşteriler ve onların verdiği siparişlerin detaylarını listeyecek sorguyu right join ile yazınız.
+
+SELECT C.*, OD.*
+FROM Customers C
+RIGHT JOIN Orders O ON O.CustomerID=C.CustomerID
+RIGHT JOIN OrderDetails OD ON OD.OrderID=O.OrderID
